@@ -131,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $message = "Only valid JPG, PNG, and WEBP images are allowed.";
                 $messageType = "error";
             } else {
-                $imageDirectory = __DIR__ . "/images/users/";
+                $imageDirectory = "/var/data/users/";
 
                 if (
                     !is_dir($imageDirectory) &&
@@ -145,8 +145,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         . "."
                         . $allowedTypes[$mimeType];
 
-                    $relativePath = "images/users/" . $fileName;
-                    $destination = __DIR__ . "/" . $relativePath;
+                    $relativePath = "users/" . $fileName;
+                    $destination = $imageDirectory . $fileName;
 
                     if (move_uploaded_file($file["tmp_name"], $destination)) {
                         try {

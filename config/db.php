@@ -25,11 +25,21 @@ $dbUser = getenv("DB_USER") ?: "";
 $dbPassword = getenv("DB_PASSWORD") ?: "";
 $dbName = getenv("DB_NAME") ?: "db_website";
 $dbPort = (int) (getenv("DB_PORT") ?: 3306);
-$dbSslCa = getenv("DB_SSL_CA") ?: "";
 
 try {
-    if ($isProduction && ($dbHost === "" || $dbUser === "" || $dbPassword === "")) {
-        throw new RuntimeException("Required production database environment variables are missing.");
+    // Require environment variables in production.
+    if (
+        $isProduction
+        && (
+            $dbHost === ""
+            || $dbUser === ""
+            || $dbPassword === ""
+            || $dbName === ""
+        )
+    ) {
+        throw new RuntimeException(
+            "Required production database environment variables are missing."
+        );
     }
 
     // Local development fallback.
@@ -37,21 +47,20 @@ try {
         $dbHost = "localhost";
         $dbUser = "root";
         $dbPassword = "";
+        $dbName = "db_website";
+        $dbPort = 3306;
     }
 
     $conn = mysqli_init();
 
     if (!$conn) {
-        throw new RuntimeException("Unable to initialize MySQL.");
+        throw new RuntimeException(
+            "Unable to initialize MySQL connection."
+        );
     }
 
-    if ($dbSslCa !== "") {
-        if (!is_readable($dbSslCa)) {
-            throw new RuntimeException("The configured database SSL CA file is unavailable.");
-        }
-
-        $conn->ssl_set(null, null, $dbSslCa, null, null);
-
+    if ($isProduction) {
+        // Use SSL/TLS for the production database connection.
         $conn->real_connect(
             $dbHost,
             $dbUser,
@@ -62,10 +71,6 @@ try {
             MYSQLI_CLIENT_SSL
         );
     } else {
-        if ($isProduction) {
-            throw new RuntimeException("DB_SSL_CA must be configured in production.");
-        }
-
         $conn->real_connect(
             $dbHost,
             $dbUser,
