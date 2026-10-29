@@ -1,3 +1,4 @@
+
 <?php
 
 require_once __DIR__ . "/../config/db.php";
@@ -5,11 +6,11 @@ require_once __DIR__ . "/../config/db.php";
 function requireLogin(): void
 {
     if (
-        empty($_SESSION["USER_ID"]) ||
-        empty($_SESSION["USERNAME"]) ||
-        empty($_SESSION["USERTYPE"])
+        empty($_SESSION["USER_ID"])
+        || empty($_SESSION["USERNAME"])
+        || empty($_SESSION["USERTYPE"])
     ) {
-        header("Location: login.php");
+        header("Location: /login.php");
         exit();
     }
 }
@@ -23,12 +24,13 @@ function requireRole(array $allowedRoles): void
 {
     requireLogin();
 
+    $role = currentRole();
+
     if (
-        currentRole() !== "Admin" &&
-        !in_array(currentRole(), $allowedRoles, true)
+        $role !== "Admin"
+        && !in_array($role, $allowedRoles, true)
     ) {
         http_response_code(403);
-
         exit("403 Forbidden — You do not have permission to access this page.");
     }
 }
@@ -44,30 +46,25 @@ function requirePageAccess(string $page): void
             "Instructor",
             "Student"
         ],
-
         "Term" => [
             "Admin",
             "Registrar"
         ],
-
         "School Year" => [
             "Admin",
             "Registrar"
         ],
-
         "Section" => [
             "Admin",
             "Dean",
             "Department Head",
             "Instructor"
         ],
-
         "Year Level" => [
             "Admin",
             "Dean",
             "Department Head"
         ],
-
         "Instructors" => [
             "Admin",
             "Registrar",
