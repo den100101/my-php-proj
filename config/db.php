@@ -1,7 +1,5 @@
-
 <?php
-
-if (session_status() !== PHP_SESSION_ACTIVE) {
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     $isHttps = (
         (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off")
         || (($_SERVER["HTTP_X_FORWARDED_PROTO"] ?? "") === "https")
